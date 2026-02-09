@@ -1,22 +1,22 @@
 <template>
-  <div class="DaoRb">
-    <h1 class="eSHwvX">Forgot password</h1>
+  <div class="auth-stack">
+    <h1 class="auth-title">Forgot password</h1>
     <form @submit.prevent="resetPassword">
       <ErrorAlert :error-msg="authError" @clearError="clearError" />
       <SuccessAlert :success-msg="authSuccess" @clearSuccess="clearSuccess" />
-      <div class="jGQTZC">
-        <label class="iJLvzO">
-          <div class="fdCSlG">
-            <input class="cmCuLh" type="text" placeholder="Email address" v-model="email" />
+      <div class="auth-group">
+        <label class="form-field">
+          <div class="form-field-inner">
+            <input class="form-input" type="text" placeholder="Email address" v-model="email" />
           </div>
         </label>
       </div>
-      <button class="gZMQdu" type="submit" :disabled="loading">
-        <div class="bjhGPG" :class="{ loading: loading }">Request</div>
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="jjoFVh" :class="{ loading: loading }">
-          <g fill="none" stroke-width="1.5" stroke-linecap="round" class="faEWLr" style="stroke: var(--icon-color)">
+      <button class="btn-primary" type="submit" :disabled="loading">
+        <div class="btn-label" :class="{ loading: loading }">Request</div>
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-spinner" :class="{ loading: loading }">
+          <g fill="none" stroke-width="1.5" stroke-linecap="round" class="spinner-rotate" style="stroke: var(--icon-color)">
             <circle stroke-opacity=".2" cx="8" cy="8" r="6"></circle>
-            <circle cx="8" cy="8" r="6" class="VFMrX"></circle>
+            <circle cx="8" cy="8" r="6" class="spinner-arc"></circle>
           </g>
         </svg>
       </button>

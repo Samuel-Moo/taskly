@@ -1,28 +1,28 @@
 <template>
-  <div class="DaoRb">
-    <h1 class="eSHwvX">New password</h1>
+  <div class="auth-stack">
+    <h1 class="auth-title">New password</h1>
     <form @submit.prevent="updatepassword">
       <ErrorAlert :error-msg="authError" @clearError="clearError" />
       <SuccessAlert :success-msg="authSuccess" @clearSuccess="clearSuccess" />
-      <div class="jGQTZC">
-        <label class="iJLvzO">
-          <div class="fdCSlG">
-            <input class="cmCuLh" type="password" placeholder="Password" v-model="password" />
+      <div class="auth-group">
+        <label class="form-field">
+          <div class="form-field-inner">
+            <input class="form-input" type="password" placeholder="Password" v-model="password" />
           </div>
         </label>
-        <label class="iJLvzO">
-          <div class="fdCSlG">
-            <input class="cmCuLh" type="password" placeholder="Repeat" v-model="passwordConfirm" />
+        <label class="form-field">
+          <div class="form-field-inner">
+            <input class="form-input" type="password" placeholder="Repeat" v-model="passwordConfirm" />
           </div>
         </label>
       </div>
-      <div class="jGQTZC">
-        <button class="gZMQdu" type="submit" :disabled="loading">
-          <div class="bjhGPG" :class="{ loading: loading }">Save</div>
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="jjoFVh" :class="{ loading: loading }">
-            <g fill="none" stroke-width="1.5" stroke-linecap="round" class="faEWLr" style="stroke: var(--icon-color)">
+      <div class="auth-group">
+        <button class="btn-primary" type="submit" :disabled="loading">
+          <div class="btn-label" :class="{ loading: loading }">Save</div>
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-spinner" :class="{ loading: loading }">
+            <g fill="none" stroke-width="1.5" stroke-linecap="round" class="spinner-rotate" style="stroke: var(--icon-color)">
               <circle stroke-opacity=".2" cx="8" cy="8" r="6"></circle>
-              <circle cx="8" cy="8" r="6" class="VFMrX"></circle>
+              <circle cx="8" cy="8" r="6" class="spinner-arc"></circle>
             </g>
           </svg>
         </button>

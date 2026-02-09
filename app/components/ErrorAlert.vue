@@ -1,9 +1,9 @@
 <template>
   <Transition name="scale-y">
     <div v-if="errorMsg">
-      <div class="cOKwvV">
-        <div class="ckmpXq">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="jXTFjD">
+      <div class="alert-error">
+        <div class="alert-error-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-20">
             <path
               d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z"
               fill="none"
@@ -18,10 +18,10 @@
               style="fill: var(--icon-color)"></path>
           </svg>
         </div>
-        <p class="cAmQly">{{ errorMsg }}</p>
-        <div class="dgcJHV">
-          <div class="dVKHAC" @click="clearError">
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="jXTFjD">
+        <p class="alert-error-message">{{ errorMsg }}</p>
+        <div class="alert-error-actions">
+          <div class="alert-error-close" @click="clearError">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-20">
               <path d="M13.5355 6.46448L6.46445 13.5355" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--icon-color)"></path>
               <path d="M13.5355 13.5355L6.46442 6.46445" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--icon-color)"></path>
             </svg>
@@ -41,7 +41,7 @@ const clearError = () => {
 </script>
 
 <style lang="postcss">
-.cOKwvV {
+.alert-error {
   @apply mb-4 gap-2 text-left flex relative;
   padding: 8px 20px 8px 8px;
   border-radius: 5px;
@@ -64,21 +64,21 @@ const clearError = () => {
     opacity: 0.15;
   }
 }
-.ckmpXq {
+.alert-error-icon {
   @apply w-6 h-6 flex justify-center items-center;
   & svg {
     --icon-color: var(--notification-dark);
     --icon-size: 18px;
   }
 }
-.cAmQly {
+.alert-error-message {
   @apply m-0 leading-6 text-sm font-medium;
 }
-.dgcJHV {
+.alert-error-actions {
   @apply ml-auto flex;
   gap: 5px;
 }
-.dVKHAC {
+.alert-error-close {
   @apply cursor-pointer w-6 h-6 p-1 box-border ml-auto -mr-3;
   border-radius: 3px;
   transition: background-color 0.2s ease 0s, transform 0.2s ease 0s;

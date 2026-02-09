@@ -1,9 +1,9 @@
 <template>
   <Transition name="scale-y">
     <div v-if="successMsg">
-      <div class="cOKwvVs">
-        <div class="ckmpXq">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="jXTFjD">
+      <div class="alert-success">
+        <div class="alert-success-icon">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-20">
             <path
               d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z"
               fill="none"
@@ -18,10 +18,10 @@
               style="fill: var(--icon-color)"></path>
           </svg>
         </div>
-        <p class="cAmQly">{{ successMsg }}</p>
-        <div class="dgcJHV">
-          <div class="dVKHAC" @click="clearSuccess">
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="jXTFjD">
+        <p class="alert-success-message">{{ successMsg }}</p>
+        <div class="alert-success-actions">
+          <div class="alert-success-close" @click="clearSuccess">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-20">
               <path d="M13.5355 6.46448L6.46445 13.5355" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--icon-color)"></path>
               <path d="M13.5355 13.5355L6.46442 6.46445" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--icon-color)"></path>
             </svg>
@@ -41,7 +41,7 @@ const clearSuccess = () => {
 </script>
 
 <style lang="postcss">
-.cOKwvVs {
+.alert-success {
   @apply mb-4 gap-2 text-left flex relative;
   padding: 8px 20px 8px 8px;
   border-radius: 5px;
@@ -64,21 +64,21 @@ const clearSuccess = () => {
     opacity: 0.15;
   }
 }
-.ckmpXq {
+.alert-success-icon {
   @apply w-6 h-6 flex justify-center items-center;
   & svg {
     --icon-color: var(--notification-dark);
     --icon-size: 18px;
   }
 }
-.cAmQly {
+.alert-success-message {
   @apply m-0 leading-6 text-sm font-medium;
 }
-.dgcJHV {
+.alert-success-actions {
   @apply ml-auto flex;
   gap: 5px;
 }
-.dVKHAC {
+.alert-success-close {
   @apply cursor-pointer w-6 h-6 p-1 box-border ml-auto -mr-3;
   border-radius: 3px;
   transition: background-color 0.2s ease 0s, transform 0.2s ease 0s;

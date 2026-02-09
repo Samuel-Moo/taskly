@@ -1,14 +1,14 @@
 <template>
-  <div class="buJnuC">
-    <div class="fvfNpo">
-      <div class="uXyMu">
+  <div class="auth-root">
+    <div class="auth-scroll">
+      <div class="auth-shell">
         <AppBackToLogin />
-        <div class="fNAZQD">
-          <div class="dgrFox">
+        <div class="auth-content">
+          <div class="auth-panel">
             <slot />
           </div>
         </div>
-        <p class="cyDNyc">
+        <p class="auth-footer">
           This site is authenticate by supabase.com and the Supabase
           <a target="_blank" href="https://supabase.com/privacy" rel="noreferrer">Privacy Policy</a>
           and
