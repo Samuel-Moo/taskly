@@ -16,9 +16,7 @@
           <h1 class="dashboard-title">
             {{ user?.user_metadata?.first_name ? 'Welcome back' : 'Taskly Dashboard' }}
           </h1>
-          <p class="dashboard-subtitle">
-            Search, monitor progress, and jump straight into project work.
-          </p>
+
         </div>
         <div class="dashboard-quick-actions">
           <NuxtLink to="/tasks" class="btn-primary-solid">

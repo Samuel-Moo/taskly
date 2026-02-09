@@ -3,7 +3,6 @@
     <div class="comments-header">
       <p class="section-kicker in">Collaboration</p>
       <h1 class="page-title">Comments</h1>
-      <p class="page-subtitle">Forum-style threads for quick task discussion.</p>
       <p v-if="!isAuthenticated" class="comments-auth-hint">Sign in to add comments.</p>
     </div>
 
@@ -187,8 +186,9 @@ const initials = (value: string) => {
   const clean = value.trim()
   if (!clean) return 'U'
   const parts = clean.split(/\s+/).filter(Boolean)
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase()
+  const [first = '', second = ''] = parts
+  if (!second) return first.slice(0, 2).toUpperCase()
+  return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase()
 }
 
 const lastCommentTime = (taskId: number) => {

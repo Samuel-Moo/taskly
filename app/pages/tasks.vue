@@ -4,7 +4,6 @@
     <div class="tasks-header">
       <p class="section-kicker in">Task Management</p>
       <h1 class="page-title">Tasks</h1>
-      <p class="page-subtitle">Plan, prioritize, and move work across your board.</p>
       <div class="tasks-header-actions">
         <button class="btn-primary" type="button" :disabled="!isAuthenticated" @click="openCreateModal">
           Add task

@@ -3,7 +3,6 @@
     <div class="projects-header">
       <p class="section-kicker in">Project Management</p>
       <h1 class="page-title">Projects</h1>
-      <p class="page-subtitle">Create, update, and track every project in one modern workspace.</p>
     </div>
 
     <div class="card-surface projects-panel">
