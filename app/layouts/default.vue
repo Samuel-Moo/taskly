@@ -20,6 +20,16 @@
             <span class="theme-toggle-label">{{ isDark ? 'Dark' : 'Light' }}</span>
           </button>
         </div>
+        <div class="sidebar-user">
+          <p class="sidebar-user-label">Logged in as</p>
+          <p class="sidebar-user-name">
+            {{
+              user?.user_metadata?.first_name || user?.user_metadata?.last_name
+                ? `${user?.user_metadata?.first_name ?? ''} ${user?.user_metadata?.last_name ?? ''}`.trim()
+                : user?.user_metadata?.full_name || user?.email || 'User'
+            }}
+          </p>
+        </div>
         <nav class="sidebar-nav">
           <NuxtLink to="/" class="sidebar-link">
             <span class="sidebar-emoji">🗠</span>
@@ -40,10 +50,6 @@
           <NuxtLink to="/notifications" class="sidebar-link">
             <span class="sidebar-emoji">🔔</span>
             Notifications
-          </NuxtLink>
-          <NuxtLink to="/search" class="sidebar-link">
-            <span class="sidebar-emoji">🔍</span>
-            Search
           </NuxtLink>
           <NuxtLink to="/reports" class="sidebar-link">
             <span class="sidebar-emoji">📊</span>
@@ -90,10 +96,15 @@ const toggleTheme = () => {
 
 const logout = async () => {
   loading.value = true
-  const { error } = await client.auth.signOut()
-  if (error) {
+  try {
+    const { error } = await client.auth.signOut()
+    if (error) {
+      alert('Something went wrong !')
+      return
+    }
+    await navigateTo('/login')
+  } finally {
     loading.value = false
-    alert('Something went wrong !')
   }
 }
 </script>
