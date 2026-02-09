@@ -1,23 +1,24 @@
 <template>
   <div class="DaoRb">
-    <h1 class="eSHwvX">Sign in</h1>
-    <form @submit.prevent="login">
+    <h1 class="eSHwvX">New password</h1>
+    <form @submit.prevent="updatepassword">
       <ErrorAlert :error-msg="authError" @clearError="clearError" />
+      <SuccessAlert :success-msg="authSuccess" @clearSuccess="clearSuccess" />
       <div class="jGQTZC">
-        <label class="iJLvzO">
-          <div class="fdCSlG">
-            <input class="cmCuLh" type="text" placeholder="Email address" v-model="email" />
-          </div>
-        </label>
         <label class="iJLvzO">
           <div class="fdCSlG">
             <input class="cmCuLh" type="password" placeholder="Password" v-model="password" />
           </div>
         </label>
+        <label class="iJLvzO">
+          <div class="fdCSlG">
+            <input class="cmCuLh" type="password" placeholder="Repeat" v-model="passwordConfirm" />
+          </div>
+        </label>
       </div>
       <div class="jGQTZC">
         <button class="gZMQdu" type="submit" :disabled="loading">
-          <div class="bjhGPG" :class="{ loading: loading }">Sign in</div>
+          <div class="bjhGPG" :class="{ loading: loading }">Save</div>
           <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="jjoFVh" :class="{ loading: loading }">
             <g fill="none" stroke-width="1.5" stroke-linecap="round" class="faEWLr" style="stroke: var(--icon-color)">
               <circle stroke-opacity=".2" cx="8" cy="8" r="6"></circle>
@@ -25,17 +26,8 @@
             </g>
           </svg>
         </button>
-        <NuxtLink to="/forgot-password" class="fTZPOV">Forgot your password?</NuxtLink>
       </div>
     </form>
-    <div class="jGQTZC">
-      <p class="dEDhcH">Don’t have a SupaAuth account?</p>
-      <NuxtLink to="/register">
-        <button class="lcqpaS">
-          <div class="bjhGPG">Create new account</div>
-        </button>
-      </NuxtLink>
-    </div>
   </div>
 </template>
 
@@ -44,37 +36,44 @@ definePageMeta({
   layout: 'auth',
 });
 useHead({
-  title: 'Login | supaAuth',
+  title: 'New Password | supaAuth',
 });
-const user = useSupabaseUser();
-const loading = ref(false);
-const authError = ref('');
-const email = ref('');
 const password = ref('');
+const passwordConfirm = ref('');
 const client = useSupabaseClient();
+const loading = ref(false);
+const authSuccess = ref('');
+const authError = ref('');
 
-watchEffect(async () => {
-  if (user.value) {
-    await navigateTo('/');
-  }
-});
-
-const login = async () => {
+const updatepassword = async () => {
+  if (password.value !== passwordConfirm.value) return (authError.value = 'Password mismatch!');
   loading.value = true;
-  const { error } = await client.auth.signInWithPassword({
-    email: email.value,
+  const { error } = await client.auth.updateUser({
     password: password.value,
   });
+  await client.auth.signOut();
   if (error) {
     loading.value = false;
     authError.value = error.message;
     setTimeout(() => {
       authError.value = '';
     }, 5000);
+  } else {
+    loading.value = false;
+    authSuccess.value = `Password changed`;
+    setTimeout(() => {
+      authSuccess.value = '';
+      navigateTo('/login');
+    }, 5000);
   }
 };
 
 const clearError = () => {
   authError.value = '';
+};
+
+const clearSuccess = () => {
+  authSuccess.value = '';
+  navigateTo('/login');
 };
 </script>
