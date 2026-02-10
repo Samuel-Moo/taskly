@@ -439,10 +439,12 @@ const hadVisibleData = ref(false)
 let ensureLoadPromise: Promise<void> | null = null
 
 // Fetch all dashboard data in parallel
-const fetchDashboardData = async (options: { clearError?: boolean } = {}) => {
+const fetchDashboardData = async (options: { clearError?: boolean; showLoading?: boolean } = {}) => {
   if (!user.value) return { ok: false, hasData: false }
-  const { clearError = true } = options
-  loading.value = true
+  const { clearError = true, showLoading = true } = options
+  if (showLoading) {
+    loading.value = true
+  }
   if (clearError) errorMsg.value = ''
   const [tasksRes, projectsRes, profilesRes, commentsRes] = await Promise.all([
     client
@@ -462,7 +464,9 @@ const fetchDashboardData = async (options: { clearError?: boolean } = {}) => {
       .select('id,task_id,user_id,body,created_at')
       .order('created_at', { ascending: false }),
   ])
-  loading.value = false
+  if (showLoading) {
+    loading.value = false
+  }
 
   const error = tasksRes.error || projectsRes.error || profilesRes.error || commentsRes.error
   if (error) {
@@ -480,7 +484,7 @@ const fetchDashboardData = async (options: { clearError?: boolean } = {}) => {
 }
 
 // Ensure data is loaded, with short retries if needed
-const ensureDashboardDataLoaded = async () => {
+const ensureDashboardDataLoaded = async (options: { showLoading?: boolean } = {}) => {
   if (!user.value) return
   if (ensureLoadPromise) {
     await ensureLoadPromise
@@ -488,9 +492,10 @@ const ensureDashboardDataLoaded = async () => {
   }
 
   ensureLoadPromise = (async () => {
+    const { showLoading = true } = options
     const extraRetries = hadVisibleData.value ? 2 : 1
     for (let attempt = 0; attempt <= extraRetries; attempt += 1) {
-      const result = await fetchDashboardData({ clearError: attempt === 0 })
+      const result = await fetchDashboardData({ clearError: attempt === 0, showLoading })
       if (!result.ok || result.hasData) return
       if (attempt < extraRetries) {
         await wait(700 * (attempt + 1))
@@ -518,7 +523,7 @@ const startAutoRefresh = () => {
   if (refreshTimer) clearInterval(refreshTimer)
   refreshTimer = setInterval(() => {
     if (!user.value || loading.value) return
-    ensureDashboardDataLoaded()
+    ensureDashboardDataLoaded({ showLoading: false })
   }, 5_000)
 }
 
