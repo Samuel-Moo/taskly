@@ -513,7 +513,7 @@ const ensureDashboardDataLoaded = async (options: { showLoading?: boolean } = {}
 // Refresh data when the window regains focus
 const handleWindowFocus = async () => {
   if (!user.value) return
-  await ensureDashboardDataLoaded()
+  await ensureDashboardDataLoaded({ showLoading: false })
 }
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null
