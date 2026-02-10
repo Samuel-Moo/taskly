@@ -57,12 +57,15 @@
 </template>
 
 <script setup lang="ts">
+// Page metadata for auth layout
 definePageMeta({
   layout: 'auth',
 });
+// SEO title
 useHead({
   title: 'Register | supaAuth',
 });
+// Form inputs + Supabase client/state
 const email = ref('');
 const password = ref('');
 const name = ref('');
@@ -73,12 +76,14 @@ const user = useSupabaseUser();
 const loading = ref(false);
 const authError = ref('');
 
+// Redirect authenticated users away from register
 watchEffect(async () => {
   if (user.value) {
     await navigateTo('/');
   }
 });
 
+// Create a new user account and store profile metadata
 const signUp = async () => {
   if (!name.value) return (authError.value = 'First name required');
   if (!lastname.value) return (authError.value = 'Last name required');
@@ -100,6 +105,7 @@ const signUp = async () => {
   }
 };
 
+// Clear the inline error message
 const clearError = () => {
   authError.value = '';
 };

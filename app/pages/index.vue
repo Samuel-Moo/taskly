@@ -159,24 +159,29 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+// Database row types for the dashboard
 type Task = Database['public']['Tables']['tasks']['Row']
 type Project = Database['public']['Tables']['projects']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Comment = Database['public']['Tables']['comments']['Row']
 
+// Supabase client + authenticated user
 const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
+// UI state
 const loading = ref(false)
 const errorMsg = ref('')
 const searchQuery = ref('')
 const appliedSearchQuery = ref('')
 
+// Data collections
 const tasks = ref<Task[]>([])
 const projects = ref<Project[]>([])
 const profiles = ref<Profile[]>([])
 const comments = ref<Comment[]>([])
 
+// Search helpers
 const appliedNormalizedQuery = computed(() => appliedSearchQuery.value.trim().toLowerCase())
 const pendingSearch = computed(() => searchQuery.value.trim() !== appliedSearchQuery.value.trim())
 
@@ -185,13 +190,14 @@ const contains = (value: string | null | undefined, query: string) => {
   return (value || '').toLowerCase().includes(query)
 }
 
+// Display name helpers for profiles and current user
 const formatProfileName = (profile: Profile) => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
   return fullName || profile.email || 'User'
 }
 
 const profileLookup = computed(() => {
-  return new Map(profiles.value.map((profile) => [profile.id, formatProfileName(profile)]))
+  return new Map(profiles.value.map((profile: Profile) => [profile.id, formatProfileName(profile)]))
 })
 
 const readString = (value: unknown) => {
@@ -214,12 +220,13 @@ const currentUserDisplayName = computed(() => {
   return 'User'
 })
 
+// Lookup maps for quick name/title resolution
 const projectLookup = computed(() => {
-  return new Map(projects.value.map((project) => [project.id, project]))
+  return new Map(projects.value.map((project: Project) => [project.id, project]))
 })
 
 const taskLookup = computed(() => {
-  return new Map(tasks.value.map((task) => [task.id, task]))
+  return new Map(tasks.value.map((task: Task) => [task.id, task]))
 })
 
 const profileName = (userId: string | null) => {
@@ -238,6 +245,7 @@ const commentTaskTitle = (taskId: number) => {
   return taskLookup.value.get(taskId)?.title ?? `Task #${taskId}`
 }
 
+// Date parsing/formatting helpers
 const parseDate = (value: string | null) => {
   if (!value) return null
   const date = new Date(value)
@@ -256,6 +264,7 @@ const formatDateTime = (value: string | null) => {
   return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
+// Normalize status strings for display
 const statusLabel = (status: string | null) => {
   switch ((status || '').toLowerCase()) {
     case 'in_progress':
@@ -275,9 +284,10 @@ const statusLabel = (status: string | null) => {
   }
 }
 
+// Filtered collections driven by the applied search
 const filteredTasks = computed(() => {
   const query = appliedNormalizedQuery.value
-  return tasks.value.filter((task) => {
+  return tasks.value.filter((task: Task) => {
     return (
       contains(task.title, query) ||
       contains(task.description, query) ||
@@ -291,14 +301,14 @@ const filteredTasks = computed(() => {
 
 const filteredProjects = computed(() => {
   const query = appliedNormalizedQuery.value
-  return projects.value.filter((project) => {
+  return projects.value.filter((project: Project) => {
     return contains(project.name, query) || contains(project.description, query) || contains(project.status, query)
   })
 })
 
 const filteredComments = computed(() => {
   const query = appliedNormalizedQuery.value
-  return comments.value.filter((comment) => {
+  return comments.value.filter((comment: Comment) => {
     return (
       contains(comment.body, query) ||
       contains(commentTaskTitle(comment.task_id), query) ||
@@ -307,12 +317,13 @@ const filteredComments = computed(() => {
   })
 })
 
+// KPI blocks for the dashboard summary
 const metrics = computed(() => {
-  const doneTasks = tasks.value.filter((task) => task.status === 'done').length
+  const doneTasks = tasks.value.filter((task: Task) => task.status === 'done').length
   const tasksCount = tasks.value.length
   const openTasks = tasksCount - doneTasks
   const completionRate = tasksCount ? Math.round((doneTasks / tasksCount) * 100) : 0
-  const overdueTasks = tasks.value.filter((task) => {
+  const overdueTasks = tasks.value.filter((task: Task) => {
     const due = parseDate(task.due_date)
     if (!due || task.status === 'done') return false
     return due.getTime() < Date.now()
@@ -320,7 +331,7 @@ const metrics = computed(() => {
 
   return {
     projects: projects.value.length,
-    activeProjects: projects.value.filter((project) => (project.status || '').toLowerCase() === 'active').length,
+    activeProjects: projects.value.filter((project: Project) => (project.status || '').toLowerCase() === 'active').length,
     tasks: tasksCount,
     doneTasks,
     openTasks,
@@ -330,11 +341,12 @@ const metrics = computed(() => {
   }
 })
 
+// Status breakdown chart
 const statusStats = computed(() => {
   const total = tasks.value.length || 1
-  const todo = tasks.value.filter((task) => task.status === 'todo').length
-  const progress = tasks.value.filter((task) => task.status === 'in_progress').length
-  const done = tasks.value.filter((task) => task.status === 'done').length
+  const todo = tasks.value.filter((task: Task) => task.status === 'todo').length
+  const progress = tasks.value.filter((task: Task) => task.status === 'in_progress').length
+  const done = tasks.value.filter((task: Task) => task.status === 'done').length
   return [
     { key: 'todo', label: 'To do', count: todo, percent: Math.round((todo / total) * 100) },
     { key: 'in_progress', label: 'In progress', count: progress, percent: Math.round((progress / total) * 100) },
@@ -342,6 +354,7 @@ const statusStats = computed(() => {
   ]
 })
 
+// Shortlists for dashboard cards
 const recentTasks = computed(() => {
   return [...filteredTasks.value]
     .sort((a, b) => {
@@ -367,9 +380,9 @@ const commentsByProject = computed(() => {
 
 const projectHealth = computed(() => {
   return [...filteredProjects.value]
-    .map((project) => {
-      const projectTasks = tasks.value.filter((task) => task.project_id === project.id)
-      const done = projectTasks.filter((task) => task.status === 'done').length
+    .map((project: Project) => {
+      const projectTasks = tasks.value.filter((task: Task) => task.project_id === project.id)
+      const done = projectTasks.filter((task: Task) => task.status === 'done').length
       const total = projectTasks.length
       const completion = total ? Math.round((done / total) * 100) : 0
       return {
@@ -394,6 +407,7 @@ const recentComments = computed(() => {
     .slice(0, 8)
 })
 
+// Search UI summary string
 const searchSummary = computed(() => {
   if (!appliedNormalizedQuery.value) {
     if (pendingSearch.value && searchQuery.value.trim()) {
@@ -404,6 +418,7 @@ const searchSummary = computed(() => {
   return `Matches: ${filteredTasks.value.length} tasks, ${filteredProjects.value.length} projects, ${filteredComments.value.length} comments`
 })
 
+// Search actions
 const applySearch = () => {
   appliedSearchQuery.value = searchQuery.value.trim()
 }
@@ -417,11 +432,13 @@ const hasDashboardData = () => {
   return tasks.value.length > 0 || projects.value.length > 0 || comments.value.length > 0
 }
 
+// Delay helper for retries
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 const hadVisibleData = ref(false)
 let ensureLoadPromise: Promise<void> | null = null
 
+// Fetch all dashboard data in parallel
 const fetchDashboardData = async (options: { clearError?: boolean } = {}) => {
   if (!user.value) return { ok: false, hasData: false }
   const { clearError = true } = options
@@ -462,6 +479,7 @@ const fetchDashboardData = async (options: { clearError?: boolean } = {}) => {
   return { ok: true, hasData }
 }
 
+// Ensure data is loaded, with short retries if needed
 const ensureDashboardDataLoaded = async () => {
   if (!user.value) return
   if (ensureLoadPromise) {
@@ -487,6 +505,7 @@ const ensureDashboardDataLoaded = async () => {
   }
 }
 
+// Refresh data when the window regains focus
 const handleWindowFocus = async () => {
   if (!user.value) return
   await ensureDashboardDataLoaded()
@@ -494,12 +513,13 @@ const handleWindowFocus = async () => {
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 
+// Polling-based refresh loop (every 5 seconds)
 const startAutoRefresh = () => {
   if (refreshTimer) clearInterval(refreshTimer)
   refreshTimer = setInterval(() => {
     if (!user.value || loading.value) return
     ensureDashboardDataLoaded()
-  }, 60_000)
+  }, 5_000)
 }
 
 const stopAutoRefresh = () => {
@@ -508,9 +528,10 @@ const stopAutoRefresh = () => {
   refreshTimer = null
 }
 
+// React to auth changes and page lifecycle
 watch(
   () => user.value?.id,
-  async (id) => {
+  async (id: string | null) => {
     if (!id) return
     await ensureDashboardDataLoaded()
   },

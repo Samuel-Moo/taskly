@@ -33,7 +33,9 @@
 </template>
 
 <script setup lang="ts">
+// Display-only success message from the parent
 defineProps<{ successMsg: String }>();
+// Notify parent when the alert is dismissed
 const emit = defineEmits(['clearSuccess']);
 const clearSuccess = () => {
   emit('clearSuccess');

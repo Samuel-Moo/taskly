@@ -340,10 +340,12 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+// Database row types for tasks view
 type Task = Database['public']['Tables']['tasks']['Row']
 type Project = Database['public']['Tables']['projects']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 
+// Supabase client + auth state
 const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 const loading = ref(false)
@@ -357,6 +359,7 @@ const isCreateOpen = ref(false)
 const confirmDelete = ref(false)
 const modalId = ref<number | null>(null)
 
+// Select options for status and priority
 const statusOptions = [
   { value: 'todo', label: 'Not started yet' },
   { value: 'in_progress', label: 'In progress' },
@@ -366,6 +369,7 @@ const statusOptions = [
 const priorityOptions = ['Low', 'Medium', 'High']
 const isAuthenticated = computed(() => !!user.value)
 
+// Create/edit drafts
 const draft = reactive({
   title: '',
   description: '',
@@ -388,10 +392,12 @@ const modalDraft = reactive({
   estimated_hours: '' as number | string,
 })
 
+// Loaded data
 const projects = ref<Project[]>([])
 const assignees = ref<Profile[]>([])
 const tasks = ref<Task[]>([])
 
+// Display helpers
 const formatProfileName = (profile: Profile) => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
   return fullName || profile.email || 'User'
@@ -411,6 +417,7 @@ const projectName = (projectId: number) => {
   return project?.name || 'Unassigned'
 }
 
+// Date/priority formatting helpers
 const formatDate = (value: string) => {
   if (!value) return ''
   const date = new Date(value)
@@ -429,6 +436,7 @@ const priorityClass = (priority: string) => {
   }
 }
 
+// Filtering and stats
 const visibleTasks = computed(() => {
   if (projectFilter.value === 'all') return tasks.value
   const projectId = Number(projectFilter.value)
@@ -451,6 +459,7 @@ const stats = computed(() => {
   return { total, done, pending, high, overdue }
 })
 
+// Fetch reference data
 const fetchProjects = async () => {
   if (!user.value) return
   const { data, error } = await client
@@ -477,6 +486,7 @@ const fetchAssignees = async () => {
   assignees.value = data ?? []
 }
 
+// Fetch tasks for the board
 const fetchTasks = async () => {
   if (!user.value) return
   loading.value = true
@@ -495,6 +505,7 @@ const fetchTasks = async () => {
   tasks.value = data ?? []
 }
 
+// Reset the create form
 const resetDraft = () => {
   draft.title = ''
   draft.description = ''
@@ -506,12 +517,14 @@ const resetDraft = () => {
   draft.estimated_hours = ''
 }
 
+// Compute next position for kanban column ordering
 const nextPosition = (status: string) => {
   const column = tasks.value.filter((task) => task.status === status)
   const max = column.reduce((acc, task) => Math.max(acc, task.position ?? 0), 0)
   return max + 1
 }
 
+// Create a new task
 const createTask = async () => {
   if (!user.value || !draft.title.trim() || !draft.project_id) return
   loading.value = true
@@ -546,6 +559,7 @@ const createTask = async () => {
   closeCreateModal()
 }
 
+// Open the edit modal and seed draft values
 const openModal = (task: Task) => {
   modalId.value = task.id
   modalDraft.title = task.title
@@ -561,12 +575,14 @@ const openModal = (task: Task) => {
   isModalOpen.value = true
 }
 
+// Close edit modal
 const closeModal = () => {
   isModalOpen.value = false
   modalId.value = null
   confirmDelete.value = false
 }
 
+// Open create modal
 const openCreateModal = () => {
   if (!isAuthenticated.value) return
   resetDraft()
@@ -574,10 +590,12 @@ const openCreateModal = () => {
   isCreateOpen.value = true
 }
 
+// Close create modal
 const closeCreateModal = () => {
   isCreateOpen.value = false
 }
 
+// Persist edits from the modal
 const saveModal = async () => {
   if (!modalId.value || !modalDraft.title.trim() || !modalDraft.project_id) return
   loading.value = true
@@ -610,6 +628,7 @@ const saveModal = async () => {
   closeModal()
 }
 
+// Delete the selected task
 const deleteModal = async () => {
   if (!modalId.value) return
   loading.value = true
@@ -626,6 +645,7 @@ const deleteModal = async () => {
   closeModal()
 }
 
+// Drag and drop handlers
 const onDragStart = (task: Task) => {
   draggingId.value = task.id
   isDragging.value = true
@@ -670,11 +690,13 @@ const onDrop = async (status: string) => {
   draggingId.value = null
 }
 
+// Open modal only on click (not drag)
 const handleCardClick = (task: Task) => {
   if (isDragging.value) return
   openModal(task)
 }
 
+// Load data after login
 watchEffect(() => {
   if (user.value) {
     fetchProjects()

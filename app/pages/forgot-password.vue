@@ -25,18 +25,22 @@
 </template>
 
 <script setup lang="ts">
+// Page metadata for auth layout
 definePageMeta({
   layout: 'auth',
 });
+// SEO title
 useHead({
   title: 'Forgot Password | supaAuth',
 });
+// Form state + Supabase client
 const email = ref('');
 const client = useSupabaseClient();
 const loading = ref(false);
 const authSuccess = ref('');
 const authError = ref('');
 
+// Request a password reset email
 const resetPassword = async () => {
   loading.value = true;
   const { error } = await client.auth.resetPasswordForEmail(email.value, {
@@ -57,6 +61,7 @@ const resetPassword = async () => {
   }
 };
 
+// Clear alert helpers
 const clearError = () => {
   authError.value = '';
 };

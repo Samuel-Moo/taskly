@@ -78,22 +78,26 @@
 </template>
 
 <script setup lang="ts">
+// Supabase session + UI theme state
 const client = useSupabaseClient()
 const user = useSupabaseUser()
 const loading = ref(false)
 const theme = useCookie<'light' | 'dark'>('taskly-theme', { default: () => 'dark' })
 const isDark = computed(() => theme.value !== 'light')
 
+// Keep the root HTML class aligned with the current theme
 useHead({
   htmlAttrs: {
     class: computed(() => (isDark.value ? 'theme-dark' : 'theme-light')),
   },
 })
 
+// Theme toggle handler
 const toggleTheme = () => {
   theme.value = isDark.value ? 'light' : 'dark'
 }
 
+// Sign out and return to the login screen
 const logout = async () => {
   loading.value = true
   try {

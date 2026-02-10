@@ -68,11 +68,13 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+// Database row types for the forum view
 type Task = Database['public']['Tables']['tasks']['Row']
 type Project = Database['public']['Tables']['projects']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Comment = Database['public']['Tables']['comments']['Row']
 
+// Supabase client + auth state
 const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 const isAuthenticated = computed(() => !!user.value)
@@ -80,12 +82,14 @@ const loading = ref(false)
 const fetching = ref(false)
 const errorMsg = ref('')
 
+// Data collections + draft comment text per task
 const tasks = ref<Task[]>([])
 const projects = ref<Project[]>([])
 const profiles = ref<Profile[]>([])
 const comments = ref<Comment[]>([])
 const drafts = reactive<Record<number, string>>({})
 
+// Display name helpers
 const formatProfileName = (profile: Profile) => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
   return fullName || profile.email || 'User'
@@ -115,6 +119,7 @@ const currentUserDisplayName = computed(() => {
   return 'User'
 })
 
+// Safe label resolution for authors
 const profileName = (userId: string | null) => {
   if (!userId) return 'User'
   const knownName = profileLookup.value.get(userId)
@@ -123,6 +128,7 @@ const profileName = (userId: string | null) => {
   return 'User'
 }
 
+// Fallback to fetch auth user id if reactive user is missing
 const resolveCommentUserId = async () => {
   const reactiveUserId = readString(user.value?.id)
   if (reactiveUserId) return reactiveUserId
@@ -132,6 +138,7 @@ const resolveCommentUserId = async () => {
   return readString(data.user?.id)
 }
 
+// Project/task label helpers
 const projectName = (projectId: number) => {
   const project = projects.value.find((item) => item.id === projectId)
   return project?.name || 'Unassigned'
@@ -155,6 +162,7 @@ const formatDateTime = (value: string | null) => {
   return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
+// Group comments by task (sorted newest first)
 const commentsByTask = computed(() => {
   const map = new Map<number, Comment[]>()
   const sorted = [...comments.value].sort((a, b) => {
@@ -170,6 +178,7 @@ const commentsByTask = computed(() => {
   return map
 })
 
+// Convenience selectors for comment previews
 const taskComments = (taskId: number) => {
   return commentsByTask.value.get(taskId) ?? []
 }
@@ -182,6 +191,7 @@ const extraReplies = (taskId: number) => {
   return Math.max(taskComments(taskId).length - 3, 0)
 }
 
+// Initials for avatar bubbles
 const initials = (value: string) => {
   const clean = value.trim()
   if (!clean) return 'U'
@@ -191,11 +201,13 @@ const initials = (value: string) => {
   return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase()
 }
 
+// Most recent reply timestamp per task
 const lastCommentTime = (taskId: number) => {
   const latest = taskComments(taskId)[0]
   return latest?.created_at ? new Date(latest.created_at).getTime() : 0
 }
 
+// Sort tasks by latest reply activity
 const forumTasks = computed(() => {
   return [...tasks.value].sort((a, b) => {
     const byRecentReply = lastCommentTime(b.id) - lastCommentTime(a.id)
@@ -206,6 +218,7 @@ const forumTasks = computed(() => {
   })
 })
 
+// Ensure each task has a draft entry
 const ensureDrafts = () => {
   for (const task of tasks.value) {
     if (drafts[task.id] === undefined) {
@@ -214,6 +227,7 @@ const ensureDrafts = () => {
   }
 }
 
+// Load tasks, projects, profiles, and comments together
 const loadData = async () => {
   if (!user.value) return
   fetching.value = true
@@ -250,6 +264,7 @@ const loadData = async () => {
   ensureDrafts()
 }
 
+// Submit a new comment for a task
 const submitComment = async (taskId: number) => {
   const body = (drafts[taskId] || '').trim()
   if (!user.value || !body) return
@@ -281,6 +296,7 @@ const submitComment = async (taskId: number) => {
   drafts[taskId] = ''
 }
 
+// Fetch data on auth changes and keep drafts in sync
 watchEffect(() => {
   if (user.value) {
     loadData()

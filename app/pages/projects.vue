@@ -141,8 +141,10 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+// Database row type for projects
 type Project = Database['public']['Tables']['projects']['Row']
 
+// Supabase client + auth state
 const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 const loading = ref(false)
@@ -151,6 +153,7 @@ const isModalOpen = ref(false)
 const modalId = ref<number | null>(null)
 const confirmDelete = ref(false)
 
+// Create/edit form drafts
 const draft = reactive({
   name: '',
   description: '',
@@ -163,8 +166,10 @@ const modalDraft = reactive({
   status: 'Active',
 })
 
+// Loaded project list
 const projects = ref<Project[]>([])
 
+// Fetch existing projects for the current user
 const fetchProjects = async () => {
   if (!user.value) return
   loading.value = true
@@ -182,12 +187,14 @@ const fetchProjects = async () => {
   projects.value = data ?? []
 }
 
+// Reset the create form
 const resetDraft = () => {
   draft.name = ''
   draft.description = ''
   draft.status = 'Active'
 }
 
+// Create a new project
 const createProject = async () => {
   if (!user.value || !draft.name.trim()) return
   loading.value = true
@@ -214,6 +221,7 @@ const createProject = async () => {
   resetDraft()
 }
 
+// Status pill helper
 const statusClass = (status: string | null) => {
   switch ((status || '').toLowerCase()) {
     case 'paused':
@@ -226,6 +234,7 @@ const statusClass = (status: string | null) => {
   }
 }
 
+// Open edit modal and seed draft values
 const openModal = (project: Project) => {
   modalId.value = project.id
   modalDraft.name = project.name
@@ -236,12 +245,14 @@ const openModal = (project: Project) => {
   isModalOpen.value = true
 }
 
+// Close edit modal
 const closeModal = () => {
   isModalOpen.value = false
   modalId.value = null
   confirmDelete.value = false
 }
 
+// Persist modal edits
 const saveModal = async () => {
   if (!modalId.value || !modalDraft.name.trim()) return
   loading.value = true
@@ -268,6 +279,7 @@ const saveModal = async () => {
   closeModal()
 }
 
+// Delete the selected project
 const deleteModal = async () => {
   if (!modalId.value) return
   loading.value = true
@@ -284,6 +296,7 @@ const deleteModal = async () => {
   closeModal()
 }
 
+// Load projects after login
 watchEffect(() => {
   if (user.value) {
     fetchProjects()

@@ -33,7 +33,9 @@
 </template>
 
 <script setup lang="ts">
+// Display-only error message from the parent
 defineProps<{ errorMsg: String }>();
+// Notify parent when the alert is dismissed
 const emit = defineEmits(['clearError']);
 const clearError = () => {
   emit('clearError');

@@ -32,12 +32,15 @@
 </template>
 
 <script setup lang="ts">
+// Page metadata for auth layout
 definePageMeta({
   layout: 'auth',
 });
+// SEO title
 useHead({
   title: 'New Password | supaAuth',
 });
+// Form inputs + Supabase client/state
 const password = ref('');
 const passwordConfirm = ref('');
 const client = useSupabaseClient();
@@ -45,6 +48,7 @@ const loading = ref(false);
 const authSuccess = ref('');
 const authError = ref('');
 
+// Update the user's password using the reset token session
 const updatepassword = async () => {
   if (password.value !== passwordConfirm.value) return (authError.value = 'Password mismatch!');
   loading.value = true;
@@ -68,6 +72,7 @@ const updatepassword = async () => {
   }
 };
 
+// Clear alert helpers
 const clearError = () => {
   authError.value = '';
 };

@@ -101,16 +101,19 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 
+// Database row types used by report generators
 type Task = Database['public']['Tables']['tasks']['Row']
 type Project = Database['public']['Tables']['projects']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Comment = Database['public']['Tables']['comments']['Row']
 type ReportType = 'tasks' | 'projects' | 'users'
 
+// Supabase client + auth state
 const client = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 const isAuthenticated = computed(() => !!user.value)
 
+// UI/report state
 const loading = ref(false)
 const errorMsg = ref('')
 const reportOutput = ref('Choose a report type to generate an analytics snapshot.')
@@ -119,11 +122,13 @@ const lastGeneratedAt = ref<string | null>(null)
 const csvHeaders = ref<string[]>([])
 const csvRows = ref<string[][]>([])
 
+// Data collections used for analytics
 const tasks = ref<Task[]>([])
 const projects = ref<Project[]>([])
 const profiles = ref<Profile[]>([])
 const comments = ref<Comment[]>([])
 
+// Label for the selected report type
 const activeReportLabel = computed(() => {
   switch (activeReport.value) {
     case 'tasks':
@@ -137,6 +142,7 @@ const activeReportLabel = computed(() => {
   }
 })
 
+// Count users referenced anywhere in workspace data
 const trackedUsers = computed(() => {
   const ids = new Set<string>()
   for (const profile of profiles.value) ids.add(profile.id)
@@ -153,6 +159,7 @@ const trackedUsers = computed(() => {
   return ids.size
 })
 
+// Display name helpers
 const formatProfileName = (profile: Profile) => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
   return fullName || profile.email || 'User'
@@ -182,6 +189,7 @@ const currentUserDisplayName = computed(() => {
   return 'User'
 })
 
+// Lookups for names and labels
 const profileName = (userId: string | null) => {
   if (!userId) return 'Unassigned'
   const knownName = profileLookup.value.get(userId)
@@ -217,6 +225,7 @@ const statusLabel = (status: string | null) => {
   }
 }
 
+// Date helpers
 const parseDate = (value: string | null) => {
   if (!value) return null
   const date = new Date(value)
@@ -241,6 +250,7 @@ const formatDateTime = (value: string | null) => {
   })
 }
 
+// Comment counts per task
 const commentsCountByTask = computed(() => {
   const map = new Map<number, number>()
   for (const comment of comments.value) {
@@ -249,6 +259,7 @@ const commentsCountByTask = computed(() => {
   return map
 })
 
+// Text table helpers for report output
 const truncate = (value: string, max: number) => {
   if (value.length <= max) return value
   if (max <= 1) return value.slice(0, max)
@@ -273,6 +284,7 @@ const buildTable = (headers: string[], rows: string[][]) => {
   ]
 }
 
+// Update UI after generating a report
 const setGeneratedReport = (type: ReportType, output: string[], headers: string[], rows: string[][]) => {
   activeReport.value = type
   reportOutput.value = output.join('\n')
@@ -281,6 +293,7 @@ const setGeneratedReport = (type: ReportType, output: string[], headers: string[
   lastGeneratedAt.value = new Date().toISOString()
 }
 
+// Load tasks/projects/profiles/comments in parallel
 const fetchWorkspaceData = async () => {
   if (!user.value) return false
   loading.value = true
@@ -318,6 +331,7 @@ const fetchWorkspaceData = async () => {
   return true
 }
 
+// Task report builder
 const generateTasksReport = async () => {
   const ok = await fetchWorkspaceData()
   if (!ok) return
@@ -395,6 +409,7 @@ const generateTasksReport = async () => {
   setGeneratedReport('tasks', output, csvHeader, csvData)
 }
 
+// Project report builder
 const generateProjectsReport = async () => {
   const ok = await fetchWorkspaceData()
   if (!ok) return
@@ -488,6 +503,7 @@ const generateProjectsReport = async () => {
   setGeneratedReport('projects', output, csvHeader, csvData)
 }
 
+// User report builder
 const generateUsersReport = async () => {
   const ok = await fetchWorkspaceData()
   if (!ok) return
@@ -601,6 +617,7 @@ const generateUsersReport = async () => {
   setGeneratedReport('users', output, csvHeader, csvData)
 }
 
+// CSV export helpers
 const escapeCsvCell = (value: string) => {
   if (value.includes('"') || value.includes(',') || value.includes('\n')) {
     return `"${value.replaceAll('"', '""')}"`
@@ -631,6 +648,7 @@ const exportCsv = () => {
   URL.revokeObjectURL(url)
 }
 
+// Refresh data when the auth user changes
 watch(
   () => user.value?.id,
   async (id) => {

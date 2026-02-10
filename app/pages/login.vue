@@ -47,12 +47,15 @@
 </template>
 
 <script setup lang="ts">
+// Page metadata for auth layout
 definePageMeta({
   layout: 'auth',
 });
+// SEO title
 useHead({
   title: 'Login | supaAuth',
 });
+// Auth/session state + form inputs
 const user = useSupabaseUser();
 const loading = ref(false);
 const authError = ref('');
@@ -60,12 +63,14 @@ const email = ref('');
 const password = ref('');
 const client = useSupabaseClient();
 
+// Redirect already-authenticated users
 watchEffect(async () => {
   if (user.value) {
     await navigateTo('/');
   }
 });
 
+// Sign in with Supabase email/password
 const login = async () => {
   loading.value = true;
   const { error } = await client.auth.signInWithPassword({
@@ -81,6 +86,7 @@ const login = async () => {
   }
 };
 
+// Clear the inline error message
 const clearError = () => {
   authError.value = '';
 };
